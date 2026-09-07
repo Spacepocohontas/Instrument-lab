@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#09090f"><meta name="description" content="Instrument Lab — playable synth, theremin and music visualizer">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Instrument Lab</title><link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,5 +35,5 @@
 <div id="visualizerBox" class="visualizer"><canvas id="vizCanvas"></canvas><div id="fileName" class="empty">Upload a track or enable microphone</div></div>
 </section>
 </main>
-<script src="app.js"></script>
+<script src="app.js"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body></html>
