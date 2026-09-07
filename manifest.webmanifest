@@ -1,0 +1,11 @@
+{
+  "name": "Instrument Lab",
+  "short_name": "Instrument Lab",
+  "description": "A browser-based synth, theremin, and audio visualizer workstation.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#09090f",
+  "theme_color": "#09090f",
+  "orientation": "any",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
