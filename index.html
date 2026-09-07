@@ -22,7 +22,7 @@
 <label>Sustain<input id="sustain" type="range" min="0" max="1" step=".01" value=".65"><output id="sustainOut">65%</output></label>
 <label>Release<input id="release" type="range" min=".02" max="2.5" step=".01" value=".3"><output id="releaseOut">300ms</output></label>
 </div>
-<div class="card keyboardCard"><div id="keyboard" class="keyboard" aria-label="Playable keyboard"></div><div class="hint">A W S E D F T G Y H U J K · Z/X octave · pointer/touch supported</div></div>
+<div class="card keyboardCard"><div id="keyboard" class="keyboard" aria-label="Playable keyboard"></div><div class="hint">A W S E D F T G Y H U J K · Z/X octave · pointer/touch · optional MIDI</div></div>
 <div class="card scopeCard"><div class="sectionTitle">OSCILLOSCOPE <span id="noteReadout">—</span></div><canvas id="scope"></canvas></div>
 </section>
 <section id="theremin" class="panel">
@@ -32,8 +32,8 @@
 </section>
 <section id="visualizer" class="panel">
 <div class="toolbar"><button id="upload" class="primary">＋ Upload Audio</button><input id="file" hidden type="file" accept="audio/*"><button id="mic">🎙 Microphone</button><button id="play">▶ Play</button><button id="stopFile">■ Stop</button><button id="fullscreen">⛶ Fullscreen</button><label class="inline">Sensitivity<input id="sensitivity" type="range" min=".2" max="3" step=".01" value="1"><output id="sensOut">1.00×</output></label><label class="inline">Mode<select id="vizMode"><option>bars</option><option>circular</option><option>wave</option></select></label><label class="inline">Theme<select id="theme"><option value="pink">Pink</option><option value="cyan">Cyan</option><option value="fire">Fire</option><option value="mono">Mono</option></select></label></div>
-<div id="visualizerBox" class="visualizer"><canvas id="vizCanvas"></canvas><div id="fileName" class="empty">Upload a track or enable microphone</div></div>
+<div id="visualizerBox" class="visualizer"><canvas id="vizCanvas"></canvas><div id="fileName" class="empty">Upload a track, drag one here, or enable microphone</div></div>
 </section>
 </main>
-<script src="app.js"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+<script src="app.js"></script><script src="enhance.js"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body></html>
