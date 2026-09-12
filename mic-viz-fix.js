@@ -29,10 +29,11 @@ async function start(){
   const comp=a.context.createDynamicsCompressor();comp.threshold.value=-18;comp.knee.value=18;comp.ratio.value=3;comp.attack.value=.005;comp.release.value=.15;
   setupAnalyser(a);source.connect(inputGain);inputGain.connect(comp);comp.connect(analyser);
   monitor=a.context.createGain();monitor.gain.value=$('micEasyMonitor').checked?1:0;comp.connect(monitor);monitor.connect(a.master);
+  window.__instrumentLabMicOutput=comp;window.__instrumentLabMicMonitor=monitor;
   $('micEasyStart').textContent='✓ Microphone Active';$('micEasyStatus').textContent='Working. Speak now — the level bar should move.';$('fileName').textContent='🎙 Live microphone';$('status').textContent='Microphone active · speaker output live';if($('mic'))$('mic').textContent='🎙 Mic Active';
  }catch(e){const n=e?.name||'';let msg='Could not access the microphone.';if(n==='NotAllowedError'||n==='SecurityError')msg='Permission denied. iPhone Settings → Safari → Microphone → Allow, then reload.';else if(n==='NotFoundError')msg='No microphone was found.';else if(n==='NotReadableError'||n==='AbortError')msg='The microphone is busy. Close other apps using it, then try again.';else if(n==='TypeError')msg='Microphone access needs the secure HTTPS site.';$('micEasyStatus').textContent=msg;$('status').textContent='Microphone unavailable'}
 }
 function setMonitor(on){const a=audio();if(monitor&&a.context)monitor.gain.setTargetAtTime(on?1:0,a.context.currentTime,.01)}
-function stop(update=true){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;[source,inputGain,monitor].forEach(n=>{try{n?.disconnect()}catch(e){}});source=inputGain=monitor=null;if(update){if($('micEasyStart'))$('micEasyStart').textContent='🎙 Enable Microphone';if($('micEasyStatus'))$('micEasyStatus').textContent='Microphone off.';$('status').textContent='Microphone off'}}
+function stop(update=true){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;[source,inputGain,monitor].forEach(n=>{try{n?.disconnect()}catch(e){}});source=inputGain=monitor=null;window.__instrumentLabMicOutput=null;window.__instrumentLabMicMonitor=null;if(update){if($('micEasyStart'))$('micEasyStart').textContent='🎙 Enable Microphone';if($('micEasyStatus'))$('micEasyStatus').textContent='Microphone off.';$('status').textContent='Microphone off'}}
 ui();if($('mic'))$('mic').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();start()};if($('micStop'))$('micStop').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();stop()};
 })();
