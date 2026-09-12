@@ -31,11 +31,11 @@
 <div class="card hint">Move left/right for pitch. Move up/down for volume. Hold a finger on mobile for continuous playing.</div>
 </section>
 <section id="visualizer" class="panel">
-<div class="toolbar"><button id="upload" class="primary">＋ Upload Audio</button><input id="file" hidden type="file" accept="audio/*"><button id="mic">🎙 Microphone</button><button id="micStop">■ Mic Off</button><button id="play">▶ Play</button><button id="stopFile">■ Stop</button><button id="fullscreen">⛶ Fullscreen</button><label class="inline">Sensitivity<input id="sensitivity" type="range" min=".2" max="3" step=".01" value="1"><output id="sensOut">1.00×</output></label><label class="inline">Mode<select id="vizMode"><option>bars</option><option>circular</option><option>wave</option></select></label><label class="inline">Theme<select id="theme"><option value="pink">Pink</option><option value="cyan">Cyan</option><option value="fire">Fire</option><option value="mono">Mono</option></select></label></div>
+<div class="toolbar"><button id="upload" class="primary">＋ Upload Audio</button><input id="file" hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.ogg,.opus,.webm,.mp4,.mov"><button id="mic">🎙 Microphone</button><button id="micStop">■ Mic Off</button><button id="play">▶ Play</button><button id="stopFile">■ Stop</button><button id="fullscreen">⛶ Fullscreen</button><label class="inline">Sensitivity<input id="sensitivity" type="range" min=".2" max="3" step=".01" value="1"><output id="sensOut">1.00×</output></label><label class="inline">Mode<select id="vizMode"><option>bars</option><option>circular</option><option>wave</option></select></label><label class="inline">Theme<select id="theme"><option value="pink">Pink</option><option value="cyan">Cyan</option><option value="fire">Fire</option><option value="mono">Mono</option></select></label></div>
 <div class="card micPanel">
 <div class="sectionTitle">🎙 MIC FX & MONITORING</div>
 <div class="fxGrid">
-<label class="toggle"><input id="micMonitor" type="checkbox"><span>Monitor mic</span></label>
+<label class="toggle"><input id="micMonitor" type="checkbox" checked><span>Monitor mic</span></label>
 <label class="toggle"><input id="autoTube" type="checkbox"><span>🔥 Auto Tube</span></label>
 <label class="toggle"><input id="micCompressor" type="checkbox" checked><span>Compressor</span></label>
 <label class="toggle"><input id="micRadio" type="checkbox"><span>📻 Radio</span></label>
