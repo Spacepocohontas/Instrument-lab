@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09090f"><meta name="description" content="Instrument Lab — playable synth, theremin and music visualizer">
-<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>Instrument Lab</title><link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><title>Instrument Lab</title><link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="topbar"><div><div class="logo">INSTRUMENT LAB</div><div class="tag">PLAY • SHAPE • SEE SOUND</div></div><div class="status"><span id="led"></span><span id="status">Audio idle</span></div></header>
@@ -12,46 +11,13 @@
 <main>
 <section id="synth" class="panel active">
 <div class="toolbar"><button id="audioStart" class="primary">▶ Start Audio</button><button id="panic">■ All Notes Off</button><button id="octMinus">− Octave</button><span class="octbadge" id="octave">0</span><button id="octPlus">+ Octave</button><button id="synthRecord">● Record</button><a id="synthDownload" class="button disabled">Download</a></div>
-<div class="controls card">
-<label>Wave<select id="wave"><option>sine</option><option selected>triangle</option><option>square</option><option>sawtooth</option></select></label>
-<label>Volume<input id="volume" type="range" min="0" max="1" step=".01" value=".35"><output id="volumeOut">35%</output></label>
-<label>Cutoff<input id="cutoff" type="range" min="80" max="14000" value="6500"><output id="cutoffOut">6.5k</output></label>
-<label>Resonance<input id="resonance" type="range" min=".1" max="20" step=".1" value="1"><output id="resOut">1.0</output></label>
-<label>Attack<input id="attack" type="range" min=".005" max="1.5" step=".005" value=".02"><output id="attackOut">20ms</output></label>
-<label>Decay<input id="decay" type="range" min=".02" max="1.5" step=".01" value=".15"><output id="decayOut">150ms</output></label>
-<label>Sustain<input id="sustain" type="range" min="0" max="1" step=".01" value=".65"><output id="sustainOut">65%</output></label>
-<label>Release<input id="release" type="range" min=".02" max="2.5" step=".01" value=".3"><output id="releaseOut">300ms</output></label>
-</div>
-<div class="card keyboardCard"><div id="keyboard" class="keyboard" aria-label="Playable keyboard"></div><div class="hint">A W S E D F T G Y H U J K · Z/X octave · touch · optional MIDI</div></div>
-<div class="card scopeCard"><div class="sectionTitle">OSCILLOSCOPE <span id="noteReadout">—</span></div><canvas id="scope"></canvas></div>
+<div class="controls card"><label>Wave<select id="wave"><option>sine</option><option selected>triangle</option><option>square</option><option>sawtooth</option></select></label><label>Volume<input id="volume" type="range" min="0" max="1" step=".01" value=".35"><output id="volumeOut">35%</output></label><label>Cutoff<input id="cutoff" type="range" min="80" max="14000" value="6500"><output id="cutoffOut">6.5k</output></label><label>Resonance<input id="resonance" type="range" min=".1" max="20" step=".1" value="1"><output id="resOut">1.0</output></label><label>Attack<input id="attack" type="range" min=".005" max="1.5" step=".005" value=".02"><output id="attackOut">20ms</output></label><label>Decay<input id="decay" type="range" min=".02" max="1.5" step=".01" value=".15"><output id="decayOut">150ms</output></label><label>Sustain<input id="sustain" type="range" min="0" max="1" step=".01" value=".65"><output id="sustainOut">65%</output></label><label>Release<input id="release" type="range" min=".02" max="2.5" step=".01" value=".3"><output id="releaseOut">300ms</output></label></div>
+<div class="card keyboardCard"><div id="keyboard" class="keyboard" aria-label="Playable keyboard"></div><div class="hint">A W S E D F T G Y H U J K · Z/X octave · touch · optional MIDI</div></div><div class="card scopeCard"><div class="sectionTitle">OSCILLOSCOPE <span id="noteReadout">—</span></div><canvas id="scope"></canvas></div>
 </section>
-<section id="theremin" class="panel">
-<div class="toolbar"><button id="therStart" class="primary">▶ Start Theremin</button><button id="therMute">🔊 Mute</button><label class="inline">Wave<select id="therWave"><option>sine</option><option>triangle</option><option>sawtooth</option><option>square</option></select></label><label class="inline">Reverb<input id="reverb" type="range" min="0" max="1" step=".01" value=".25"><output id="reverbOut">25%</output></label></div>
-<div id="thereminPad" class="theremin" aria-label="Theremin play area"><div class="crosshair" id="crosshair"></div><div class="guideCircle"></div><div class="axis xaxis">LOW ← PITCH → HIGH</div><div class="axis yaxis">LOUD ↑<br>QUIET ↓</div><div id="pitchReadout" class="pitchReadout">Start, then move</div></div>
-<div class="card hint">Move left/right for pitch. Move up/down for volume. Hold a finger on mobile for continuous playing.</div>
-</section>
+<section id="theremin" class="panel"><div class="toolbar"><button id="therStart" class="primary">▶ Start Theremin</button><button id="therMute">🔊 Mute</button><label class="inline">Wave<select id="therWave"><option>sine</option><option>triangle</option><option>sawtooth</option><option>square</option></select></label><label class="inline">Reverb<input id="reverb" type="range" min="0" max="1" step=".01" value=".25"><output id="reverbOut">25%</output></label></div><div id="thereminPad" class="theremin" aria-label="Theremin play area"><div class="crosshair" id="crosshair"></div><div class="guideCircle"></div><div class="axis xaxis">LOW ← PITCH → HIGH</div><div class="axis yaxis">LOUD ↑<br>QUIET ↓</div><div id="pitchReadout" class="pitchReadout">Start, then move</div></div><div class="card hint">Move left/right for pitch. Move up/down for volume. Hold a finger on mobile for continuous playing.</div></section>
 <section id="visualizer" class="panel">
-<div class="toolbar"><button id="upload" class="primary">＋ Upload Audio</button><input id="file" hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.ogg,.opus,.webm,.mp4,.mov"><button id="mic">🎙 Microphone</button><button id="micStop">■ Mic Off</button><button id="play">▶ Play</button><button id="stopFile">■ Stop</button><button id="fullscreen">⛶ Fullscreen</button><label class="inline">Sensitivity<input id="sensitivity" type="range" min=".2" max="3" step=".01" value="1"><output id="sensOut">1.00×</output></label><label class="inline">Mode<select id="vizMode"><option>bars</option><option>circular</option><option>wave</option></select></label><label class="inline">Theme<select id="theme"><option value="pink">Pink</option><option value="cyan">Cyan</option><option value="fire">Fire</option><option value="mono">Mono</option></select></label></div>
-<div class="card micPanel">
-<div class="sectionTitle">🎙 MIC FX & MONITORING</div>
-<div class="fxGrid">
-<label class="toggle"><input id="micMonitor" type="checkbox" checked><span>Monitor mic</span></label>
-<label class="toggle"><input id="autoTube" type="checkbox"><span>🔥 Auto Tube</span></label>
-<label class="toggle"><input id="micCompressor" type="checkbox" checked><span>Compressor</span></label>
-<label class="toggle"><input id="micRadio" type="checkbox"><span>📻 Radio</span></label>
-<label class="toggle"><input id="micMegaphone" type="checkbox"><span>📣 Megaphone</span></label>
-<label class="toggle"><input id="micRobot" type="checkbox"><span>🤖 Robot</span></label>
-<label class="toggle"><input id="micEcho" type="checkbox"><span>🌀 Echo</span></label>
-<label class="toggle"><input id="micReverb" type="checkbox"><span>✨ Reverb</span></label>
-</div>
-<div class="controls fxControls">
-<label>Mic Gain<input id="micGain" type="range" min="0" max="2" step=".01" value="1"><output id="micGainOut">100%</output></label>
-<label>Tube Drive<input id="tubeDrive" type="range" min="0" max="1" step=".01" value=".28"><output id="tubeDriveOut">28%</output></label>
-<label>Echo<input id="micEchoAmount" type="range" min="0" max=".8" step=".01" value=".25"><output id="micEchoOut">25%</output></label>
-<label>Reverb<input id="micReverbAmount" type="range" min="0" max="1" step=".01" value=".2"><output id="micReverbOut">20%</output></label>
-</div>
-<div class="hint">Mic monitoring is OFF by default to prevent iPhone speaker feedback. Use headphones for live FX monitoring.</div>
-</div>
+<div class="toolbar"><button id="upload" class="primary">＋ Upload Audio</button><input id="file" hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.ogg,.opus,.webm,.mp4,.mov"><button id="mic">🎙 Quick Mic</button><button id="micStop">■ Mic Off</button><button id="play">▶ Play</button><button id="stopFile">■ Stop</button><button id="fullscreen">⛶ Fullscreen</button><label class="inline">Sensitivity<input id="sensitivity" type="range" min=".2" max="3" step=".01" value="1"><output id="sensOut">1.00×</output></label><label class="inline">Mode<select id="vizMode"><option>bars</option><option>circular</option><option>wave</option></select></label><label class="inline">Theme<select id="theme"><option value="pink">Pink</option><option value="cyan">Cyan</option><option value="fire">Fire</option><option value="mono">Mono</option></select></label></div>
+<div class="card micPanel"><div class="sectionTitle">🎙 MIC FX & MONITORING</div><div class="fxGrid"><label class="toggle"><input id="micMonitor" type="checkbox" checked><span>Monitor mic</span></label><label class="toggle"><input id="autoTube" type="checkbox"><span>🔥 Auto Tube</span></label><label class="toggle"><input id="micCompressor" type="checkbox" checked><span>Compressor</span></label><label class="toggle"><input id="micRadio" type="checkbox"><span>📻 Radio</span></label><label class="toggle"><input id="micMegaphone" type="checkbox"><span>📣 Megaphone</span></label><label class="toggle"><input id="micRobot" type="checkbox"><span>🤖 Robot</span></label><label class="toggle"><input id="micEcho" type="checkbox"><span>🌀 Echo</span></label><label class="toggle"><input id="micReverb" type="checkbox"><span>✨ Reverb</span></label></div><div class="controls fxControls"><label>Mic Gain<input id="micGain" type="range" min="0" max="2" step=".01" value="1"><output id="micGainOut">100%</output></label><label>Tube Drive<input id="tubeDrive" type="range" min="0" max="1" step=".01" value=".28"><output id="tubeDriveOut">28%</output></label><label>Echo<input id="micEchoAmount" type="range" min="0" max=".8" step=".01" value=".25"><output id="micEchoOut">25%</output></label><label>Reverb<input id="micReverbAmount" type="range" min="0" max="1" step=".01" value=".2"><output id="micReverbOut">20%</output></label></div><div class="hint">Use the new EASY MIC SETUP above. It is the primary microphone control on iPhone.</div></div>
 <div id="visualizerBox" class="visualizer"><canvas id="vizCanvas"></canvas><div id="fileName" class="empty">Upload a track, drag one here, or enable microphone</div></div>
 </section>
 </main>
