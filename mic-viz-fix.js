@@ -1,11 +1,77 @@
 (()=>{
 const $=id=>document.getElementById(id);
-let micStream=null,micSource=null,micChain=null,monitorGain=null,vizAnalyser=null,renderCanvas=null,renderCtx=null;
-const shared=()=>window.__instrumentLabAudio||{};
-async function getAudio(){const a=shared();if(!a.context)return null;try{if(a.context.state!=='running')await a.context.resume()}catch(e){}return a}
-function ensureViz(){const a=shared();if(!a.context||!a.master)return null;if(!vizAnalyser){vizAnalyser=a.context.createAnalyser();vizAnalyser.fftSize=2048;vizAnalyser.smoothingTimeConstant=.72}if(!renderCanvas){const box=$('visualizerBox');if(!box)return vizAnalyser;renderCanvas=document.createElement('canvas');renderCanvas.id='micVizOverlay';renderCanvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3';box.style.position='relative';box.appendChild(renderCanvas);renderCtx=renderCanvas.getContext('2d');const resize=()=>{const r=box.getBoundingClientRect(),d=devicePixelRatio||1;renderCanvas.width=Math.max(1,r.width*d);renderCanvas.height=Math.max(1,r.height*d);renderCtx.setTransform(d,0,0,d,0,0)};addEventListener('resize',resize);resize();const draw=()=>{requestAnimationFrame(draw);const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;const data=new Uint8Array(vizAnalyser.frequencyBinCount);vizAnalyser.getByteFrequencyData(data);renderCtx.clearRect(0,0,w,h);const sens=+$('sensitivity')?.value||1,mode=$('vizMode')?.value||'bars',theme=$('theme')?.value||'pink',col={pink:'#d946ef',cyan:'#22d3ee',fire:'#fb923c',mono:'#fff'}[theme]||'#d946ef';renderCtx.fillStyle=col;renderCtx.strokeStyle=col;if(mode==='bars'){const n=Math.max(1,Math.min(96,Math.floor(w/7))),bw=w/n;for(let i=0;i<n;i++){const val=Math.min(1,(data[Math.floor(i*data.length/n)]||0)/255*sens),hh=val*h*.9;renderCtx.fillRect(i*bw+1,h-hh,Math.max(1,bw-3),hh)}}else if(mode==='circular'){const cx=w/2,cy=h/2,base=Math.min(w,h)*.18;renderCtx.beginPath();renderCtx.arc(cx,cy,base,0,Math.PI*2);renderCtx.stroke();for(let i=0;i<120;i++){const val=(data[Math.floor(i*data.length/120)]||0)/255*sens,ang=i*Math.PI*2/120,r=base+val*Math.min(w,h)*.32;renderCtx.beginPath();renderCtx.moveTo(cx+Math.cos(ang)*base,cy+Math.sin(ang)*base);renderCtx.lineTo(cx+Math.cos(ang)*r,cy+Math.sin(ang)*r);renderCtx.stroke()}}else{renderCtx.beginPath();for(let i=0;i<700;i++){const val=(data[Math.floor(i*data.length/700)]||0)/255,y=h/2+(val/255-.5)*h*.85*sens,x=i/700*w;i?renderCtx.lineTo(x,y):renderCtx.moveTo(x,y)}renderCtx.stroke()}};draw()}return vizAnalyser}
-function buildUI(){if($('micOutputPanel'))return;const card=document.createElement('div');card.id='micOutputPanel';card.className='card labCard';card.innerHTML='<div class="sectionTitle">🎙 LIVE MICROPHONE</div><div class="labRow"><label class="toggle"><input id="micMonitorSafe" type="checkbox" checked><span>🔊 Mic → Phone Speaker</span></label><label>Output Level<input id="micOutputLevel" type="range" min="0" max="1" step=".01" value=".7"><output id="micOutputLevelOut">70%</output></label></div><div class="hint">The microphone feeds the visualizer and your phone’s current audio output. AirPods/Bluetooth speakers work automatically when selected as the phone’s output. Use headphones at higher volume to avoid feedback.</div>';document.querySelector('#visualizer')?.appendChild(card);$('micMonitorSafe').onchange=()=>{if($('micMonitor'))$('micMonitor').checked=$('micMonitorSafe').checked;if(monitorGain)monitorGain.gain.setTargetAtTime($('micMonitorSafe').checked?+$('micOutputLevel').value:0,shared().context.currentTime,.015)};$('micOutputLevel').oninput=e=>{const v=+e.target.value;$('micOutputLevelOut').textContent=Math.round(v*100)+'%';if(monitorGain&&$('micMonitorSafe').checked)monitorGain.gain.setTargetAtTime(v,shared().context.currentTime,.015)}}
-async function startMic(){buildUI();const a=await getAudio();if(!a)return;if(!navigator.mediaDevices?.getUserMedia){$('status').textContent='Microphone is not available in this browser';return}const analyser=ensureViz();try{micStream?.getTracks().forEach(t=>t.stop());micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}});micSource=a.context.createMediaStreamSource(micStream);micChain=micSource;const gain=a.context.createGain();gain.gain.value=+$('micGain')?.value||1;micChain.connect(gain);micChain=gain;if($('micCompressor')?.checked){const c=a.context.createDynamicsCompressor();c.threshold.value=-20;c.knee.value=20;c.ratio.value=4;c.attack.value=.003;c.release.value=.12;micChain.connect(c);micChain=c}if($('autoTube')?.checked){const ws=a.context.createWaveShaper(),amt=+$('tubeDrive')?.value||0,k=1+amt*18,curve=new Float32Array(2048);for(let i=0;i<curve.length;i++){const x=i*2/curve.length-1;curve[i]=(1+k)*x/(1+k*Math.abs(x))}ws.curve=curve;ws.oversample='2x';micChain.connect(ws);micChain=ws}if($('micRadio')?.checked){const f=a.context.createBiquadFilter();f.type='bandpass';f.frequency.value=1500;f.Q.value=.8;micChain.connect(f);micChain=f}if($('micMegaphone')?.checked){const f=a.context.createBiquadFilter();f.type='peaking';f.frequency.value=1800;f.Q.value=1.2;f.gain.value=10;micChain.connect(f);micChain=f}micChain.connect(analyser);monitorGain=a.context.createGain();monitorGain.gain.value=$('micMonitorSafe')?.checked?+$('micOutputLevel').value:0;micChain.connect(monitorGain);monitorGain.connect(a.master);$('fileName').textContent='🎙 Microphone → speaker + visualizer';$('mic').textContent='🎙 Mic Active';$('status').textContent='Microphone active · speaker output live'}catch(e){$('status').textContent=e?.name==='NotAllowedError'?'Microphone permission blocked — allow Microphone in browser settings':'Microphone could not start: '+(e?.name||'error')}}
-function stopMic(){micStream?.getTracks().forEach(t=>t.stop());micStream=null;try{micSource?.disconnect()}catch(e){}try{micChain?.disconnect()}catch(e){}try{monitorGain?.disconnect()}catch(e){}micSource=micChain=monitorGain=null;$('mic').textContent='🎙 Microphone';$('status').textContent='Microphone off'}
-$('mic').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();startMic()};$('micStop').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();stopMic()};ensureViz();buildUI();
+let stream=null,source=null,inputGain=null,monitor=null,analyser=null,canvas=null,ctx=null,raf=0;
+const audio=()=>window.__instrumentLabAudio||{};
+
+function ui(){
+  if($('micEasyPanel')) return;
+  const host=$('visualizer'); if(!host)return;
+  const card=document.createElement('div'); card.id='micEasyPanel'; card.className='card labCard';
+  card.innerHTML=`<div class="sectionTitle">🎙 EASY MIC SETUP</div>
+  <div class="hint" id="micHelp">Tap <b>Enable Microphone</b> once, allow Microphone, then speak. Your voice will go to the visualizer and phone audio output.</div>
+  <div class="labRow">
+    <button id="micEasyStart" class="primary" type="button">🎙 Enable Microphone</button>
+    <button id="micEasyStop" type="button">■ Turn Mic Off</button>
+    <label class="toggle"><input id="micEasyMonitor" type="checkbox" checked><span>🔊 Speaker Output</span></label>
+  </div>
+  <label>Mic Level <input id="micEasyLevel" type="range" min="0" max="1.5" step=".01" value="1"><output id="micEasyLevelOut">100%</output></label>
+  <div class="hint" id="micEasyStatus">Not connected yet.</div>`;
+  host.insertBefore(card,host.querySelector('#visualizerBox'));
+  $('micEasyStart').onclick=start;
+  $('micEasyStop').onclick=stop;
+  $('micEasyMonitor').onchange=()=>setMonitor($('micEasyMonitor').checked);
+  $('micEasyLevel').oninput=e=>{ $('micEasyLevelOut').textContent=Math.round(+e.target.value*100)+'%'; if(inputGain)inputGain.gain.value=+e.target.value; };
+}
+
+function setupAnalyser(a){
+  if(analyser)return analyser;
+  analyser=a.context.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=.65;
+  const box=$('visualizerBox'); if(!box)return analyser;
+  canvas=document.createElement('canvas'); canvas.id='micLiveLevel'; canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5';
+  box.style.position='relative'; box.appendChild(canvas); ctx=canvas.getContext('2d');
+  const resize=()=>{const r=box.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0)};
+  addEventListener('resize',resize); resize();
+  const draw=()=>{raf=requestAnimationFrame(draw);const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;const data=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(data);let sum=0;for(const n of data){const x=(n-128)/128;sum+=x*x}const level=Math.min(1,Math.sqrt(sum/data.length)*4);ctx.clearRect(0,0,w,h);ctx.beginPath();ctx.lineWidth=3;ctx.moveTo(16,h-22);ctx.lineTo(16+(w-32)*level,h-22);ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent')||'#d946ef';ctx.stroke()};draw();
+  return analyser;
+}
+
+async function start(){
+  ui();
+  const a=audio();
+  if(!a.context||!a.master){
+    $('micEasyStatus').textContent='First tap ▶ Start Audio, then tap Enable Microphone.'; return;
+  }
+  try{if(a.context.state!=='running')await a.context.resume();}catch(e){}
+  if(!navigator.mediaDevices?.getUserMedia){$('micEasyStatus').textContent='Microphone access is unavailable in this browser.';return}
+  try{
+    stop(false);
+    // Keep the request deliberately simple for iPhone/iPad compatibility.
+    stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    source=a.context.createMediaStreamSource(stream);
+    inputGain=a.context.createGain(); inputGain.gain.value=+$('micEasyLevel').value;
+    const comp=a.context.createDynamicsCompressor(); comp.threshold.value=-18; comp.knee.value=18; comp.ratio.value=3; comp.attack.value=.005; comp.release.value=.15;
+    setupAnalyser(a);
+    source.connect(inputGain); inputGain.connect(comp); comp.connect(analyser);
+    monitor=a.context.createGain(); monitor.gain.value=$('micEasyMonitor').checked?1:0; comp.connect(monitor); monitor.connect(a.master);
+    $('micEasyStart').textContent='✓ Microphone Active'; $('micEasyStatus').textContent='Working. Speak now — level bar should move.';
+    $('fileName').textContent='🎙 Live microphone'; $('status').textContent='Microphone active · speaker output live';
+    const old=$('mic'); if(old)old.textContent='🎙 Mic Active';
+  }catch(e){
+    const name=e?.name||'';
+    let msg='Could not access the microphone.';
+    if(name==='NotAllowedError'||name==='SecurityError')msg='Microphone permission was denied. In iPhone Settings → Safari → Microphone, choose Allow, then reload this page.';
+    else if(name==='NotFoundError')msg='No microphone was found.';
+    else if(name==='NotReadableError'||name==='AbortError')msg='The microphone is busy. Close other apps using the mic, then try again.';
+    else if(name==='TypeError')msg='This page needs a secure HTTPS connection for microphone access.';
+    $('micEasyStatus').textContent=msg;
+    $('status').textContent='Microphone unavailable';
+  }
+}
+function setMonitor(on){if(monitor)monitor.gain.setTargetAtTime(on?1:0,audio().context.currentTime,.01)}
+function stop(update=true){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;[source,inputGain,monitor].forEach(n=>{try{n?.disconnect()}catch(e){}});source=inputGain=monitor=null;if(update){if($('micEasyStart'))$('micEasyStart').textContent='🎙 Enable Microphone';if($('micEasyStatus'))$('micEasyStatus').textContent='Microphone off.';$('status').textContent='Microphone off'}}
+
+ui();
+// This is the final mic handler, intentionally replacing the older competing handlers.
+if($('mic'))$('mic').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();start()};
+if($('micStop'))$('micStop').onclick=e=>{e.preventDefault();e.stopImmediatePropagation();stop()};
 })();
