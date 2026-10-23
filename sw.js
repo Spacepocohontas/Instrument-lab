@@ -1,4 +1,4 @@
-const CACHE='instrument-lab-v5';
+const CACHE='instrument-lab-v5-gx';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./enhance.js','./performance-controls.js','./pro-upgrade.js','./stability.js','./mic-viz-fix.js','./voice-studio-plus.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
